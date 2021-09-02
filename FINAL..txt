@@ -1,0 +1,216 @@
+#include<iostream>
+#include<fstream>
+#include<stdio.h>
+#include<conio.h>
+void Read_Details();
+void Extract_Report();
+void start();
+typedef struct
+{
+	int SalesDetails[12][4][5];
+}SD;
+void start()
+{
+	printf("*******************************************************************************");
+	printf("                             STAR MOTORS                                         ");
+	printf("*******************************************************************************");
+	printf("\n\n");
+	printf("WELCOME!!!!\n\n");
+}
+
+void main()
+{
+	int uge,success=0,p=0;
+	char pwd[5],password[5]={'y','o','g','i','\0'};
+	start();
+	printf("Enter the 4 digit password\n");
+	for( p=0;p<3;p++)
+	{
+	for(int i=0;i<4;i++)
+	{
+		pwd[i]=getch(); 
+		printf("*");
+	}
+	pwd[4]='\0';
+	if(!strcmp(pwd,password))
+	{
+	printf("\n");
+	printf("What do you want to do?\n\n");
+	printf("1.Update the sale details\n");
+	printf("2.Generate the reports for analysis\n");
+	printf("3.Exit\n");
+	scanf_s("%d",&uge);
+	switch(uge)
+	{
+	case 1:Read_Details();
+		break;
+	case 2:Extract_Report();
+		break;
+	case 3:exit(0);
+		break;
+	}
+	exit(0);
+	}
+	else
+	{	
+		if(p==2)
+		{
+			printf("\n");
+			printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+			printf("\nAccount has been locked, please contact your account admin\n");
+			getch();
+			exit(0);
+		}
+			printf("\ninvalid password\n");
+		printf("Enter the correct password:\n");
+	}
+	}
+}
+void Read_Details()
+{
+	int m=0,i=0,j=0;
+	SD s2;
+	FILE *fp1;
+	fp1=fopen("database2.txt","a+");
+	do
+	{
+	printf("Please enter the month for which you want to update the sales details:\t");
+	scanf("%d",&m);
+	if(m==0 || m>12)
+		printf("Invalid month\n");
+	}while(m==0 || m>12);
+	printf("Enter the Sales Details for the month %d\n",m);
+	for(i=0;i<4;i++)
+	{
+		printf("Count of each product sold by sales person %d\n",i+1);
+		for(j=0;j<5;j++)
+			{
+				printf("\tcount of product%d sold:",j+1);
+				scanf("%d",&s2.SalesDetails[m][i][j]);
+			}
+		
+	}
+	fprintf(fp1,"%02d",m);
+	for(i=0;i<4;i++)
+	{
+		for(j=0;j<5;j++)
+		{
+			fprintf(fp1,"|""%d",s2.SalesDetails[m][i][j]);
+		}
+		fprintf(fp1,"@");
+	}
+	fprintf(fp1,"\n");
+	fclose(fp1);
+}
+
+void Extract_Report()
+{
+	int report_selection,rep_month,rep_prod,month,k=0,m=0,x=0,j=0,l=0,result=0,i=0,largest[4],person=0;
+	char buffer[120],out[4][5],sti[1],mon[3];
+	FILE *fp2;
+		printf("Please select the kind of report that needs to be genereated from the below menu\n\n");
+		printf("1.Total units of each product sold in the month\n"
+			   "2.Total units of all products sold by each sales person\n"
+			   "3.Maximum unit of each product sold\n"
+			   "4.Who sold the maximum unit\n"
+			   "5.EXIT\n");
+		printf("Please enter your choice:\t");
+		scanf("%d",&report_selection);
+		//printf("Enter the month for which the report needs to be generated:\t");
+		do
+		{
+			printf("please enter the month for which you want to see the sales details:\t");
+			scanf("%d",&rep_month);
+			if(rep_month==0 || rep_month>12)
+			printf("invalid month\n");
+		}while(rep_month==0 || rep_month>12);
+		//scanf_s("%d",&rep_month);
+		fp2=fopen("database2.txt","r");
+		if(fp2 == NULL) 
+		printf("Error opening file");
+		int ch;
+		for(k=0;k<12;k++)
+		{
+		while (!feof(fp2))
+		{
+				fgets(buffer,46,fp2);
+				for(i=0;i<2;i++)
+					mon[i]=buffer[i];
+					mon[2]='\0';
+				month=atoi(mon);
+				if(month==rep_month)
+				{
+					m=3;
+					for(i=0;i<4;i++)
+					{
+						for(j=0;j<5;j++)
+						{
+							
+							sti[0]=buffer[m];
+							sti[1]='\0';
+							x = atoi(sti);
+							m=m+2;
+							out[i][j]=x;
+						}
+						m++;
+					}
+					for(i=0;i<4;i++)
+					{
+						for(j=0;j<5;j++)
+						{
+							printf("%d ",out[i][j]);
+						}
+						printf("\n");
+					}
+					switch(report_selection)
+					{
+					case 1:
+						printf("Enter the product whose total sale count is required:\t");
+						scanf_s("%d",&rep_prod);
+						for(l=0;l<4;l++)
+							result=result+out[l][rep_prod-1];
+						printf("number of product%d sold are:%d",rep_prod,result);
+						break;
+					case 2:
+						printf("Enter the person whose total sale count is required:\t");
+						scanf_s("%d",&rep_prod);
+						for(l=0;l<5;l++)
+							result=result+out[rep_prod-1][l];
+						printf("number of products sold by person%d is: %d",rep_prod,result);
+						break;
+					case 3:
+						printf("Enter the product whose maximum count of units sold is required:");
+						scanf_s("%d",&rep_prod);
+						for(l=0;l<4;l++)
+							largest[l]=out[l][rep_prod-1];
+						for(m=0;m<4;m++)
+						{
+							if(largest[m]>result)
+							result=largest[m];
+						}
+						printf("Maximum number of product%d sold are: %d",rep_prod,result);
+						break;
+					case 4:
+						printf("Enter the product whose maximum count of units sold is required:");
+						scanf_s("%d",&rep_prod);
+						for(l=0;l<4;l++)
+							largest[l]=out[l][rep_prod-1];
+						for(m=0;m<4;m++)
+						{
+							if(largest[m]>result)
+							{
+								result=largest[m];
+								person=m;
+							}
+						}
+						printf("Maximum number of product%d sold by Salesperson %d and he sold %d units",rep_prod,person+1,result);
+						break;
+					case 5:exit(0);
+					}
+					break;
+				}
+				fseek(fp2,3,SEEK_CUR);
+			}
+		 }
+	fclose(fp2);
+}
